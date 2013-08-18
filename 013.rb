@@ -208,11 +208,60 @@ number_string = "37107287533902102798797998220837590246510135740250
 
 # brute force
 t1 = Time.now
-numbers = number_string.split("\n").map(&:to_i)
 puts "brute force method"
+numbers = number_string.split("\n").map(&:to_i)
 puts numbers.inject(:+).to_s[0..10]
 puts "took #{Time.now - t1}s"
 
 # -> 55373762303
 # -> took 0.00035s
+
+# Lets try adding the right-most columns, carrying over 
+# the values to the left until we reach the max number
+# of digits in an integer.
+# However, Ruby automatically converts integers into a 
+# large integer class to when there is overflow, so 
+# there is practically no maximum.
+# We'll make up a max.
+
+# MAX_INTEGER_DIGITS = (0.size * 8 - 2 ) - 1 # too many!
+MAX_INTEGER_DIGITS = 10 # just right for this demonstration
+
+t1 = Time.now
+number_string_array = number_string.split("\n")
+max_number_length = 0
+number_string_array.each do |x|
+  max_number_length = x.length if x.length > max_number_length
+end
+
+sum_array = []
+current_sum = 0
+carry = 0
+sliced_array = []
+
+number_string_array.each do |x|
+  sliced_array.push(x.split("").each_slice(MAX_INTEGER_DIGITS-1).to_a)
+end
+
+p sliced_array
+
+
+(max_number_length / (MAX_INTEGER_DIGITS - 1)).times do |i|
+  number_string_array.each do |x|
+    sliced_array.push(x.each_slice(MAX_INTEGER_DIGITS-1))
+  end
+  current_sum += carry
+  carry = 0
+  if current_sum.to_s.length == MAX_INTEGER_DIGITS
+    carry = current_sum[0]
+    current_sum = current_sum.to_s[0..MAX_INTEGER_DIGITS-1].to_i
+  end
+  puts "#{i} sum - #{current_sum}"
+  sum_array.push(current_sum)
+  current_sum = 0
+end
+
+puts sum_array
+puts "chunked method took #{Time.now - t1}s"
+
 
