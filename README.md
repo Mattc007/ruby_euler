@@ -15,3 +15,7 @@ For instance, for the "find the Nth prime number":
 2) Check out the wikipedia article and learn a much better implementation.
 3a) Implement a new version of the solution using this new method. 
 3b) Research a "prime" lib available in Ruby, learn it and use it instead.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Mattc007/ruby_euler/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
