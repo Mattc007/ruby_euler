@@ -13,19 +13,20 @@
 # fractions for d ≤ 1,000,000?
 
 t1 = Time.now
-d_max = 1_000_000
-phi = (0..d_max+1).to_a
+max = 1_000_000
+phi = (0..max).to_a
 result = 0
 
-(2..d_max).each do |i|
-  if phi[i] == i
-    (i..d_max).step(i) do |j|
-      phi[j] /= (i - 1) * i
+(2..max).each do |n|
+  if phi[n] == n  
+    n.step(max, n) do |m|
+      phi[m] = (phi[m] / n) * (n - 1)
     end
   end
-  result += phi[i]
 end
 
-puts "found #{result} in #{Time.now - t1}s"
+result = phi.inject(:+) - 1
 
+puts "found #{result} in #{Time.now - t1}s"
+# found 303963552391 in 2.941086s
 
