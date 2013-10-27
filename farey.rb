@@ -11,6 +11,6 @@ def farey(order)
   puts output
 end
 
-(1..8).each do |i|
+(1..10).each do |i|
   farey i
 end
