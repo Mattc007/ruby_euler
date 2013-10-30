@@ -24,50 +24,43 @@
 # the largest value of x is obtained.
 
 # http://en.wikipedia.org/wiki/Pell%27s_equation
+# http://en.wikipedia.org/wiki/Chakravala_method
+
+require 'prime'
 
 t1 = Time.now
 result = 0
-p_max = 0
+max_x = 0
+limit = 1000
+primes = Prime.first(limit)
 
-(10..1000).each do |d|
-  limit = Math.sqrt(d).to_i
-  next if limit**2 == d
+def find_pell(d)
+  p, k, x1, y = 1, 1, 1, 0
+  while k != 1 || y == 0
+    if k == -1
+      p = -1 * p
+    else
+      p = k * (p / (k + 1)) - p
+    end
+    p = p - ((p - Math.sqrt(d)) / k).to_i * k
 
-  m = 0
-  d = 1
-  a = limit
+    x = (p * x1 + d * y) / k.abs
+    y = (p * y + x1) / k.abs
+    k = (p * p - d) / k
 
-  numerator_1 = 1
-  numerator = a
-
-  denominator_1 = 0
-  denominator = 1
-
-  puts "#{numerator} / #{denominator}"
-
-  while ((numerator**2 - d*denominator**2) != 1)
-    m = d * a - m
-    d = (d - m**2) / d
-    a = (limit + m) / d
-
-    numerator_2 = numerator_1
-    numerator_1 = numerator
-
-    denominator_2 = denominator_1
-    denominator_1 = denominator
-
-    numerator = a * numerator_1 + numerator_2
-    denominator = a * denominator_1 + denominator_2
-
-    puts "#{numerator} / #{denominator}"
-
+    x1 = x
   end
+  x
+end
 
-  if numerator > p_max
-    p_max = numerator
-    result = d
-    puts "new result = #{result}"
+primes.each do |d|
+  break if d > limit
+  solution = [find_pell(d), d].max
+  if solution > result
+    result = solution 
+    max_x = d
   end
 end
 
-puts "found #{result} in #{Time.now - t1}s"
+puts "found #{max_x} in #{Time.now - t1}s"
+# found 661 in 0.020009s
