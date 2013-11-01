@@ -20,11 +20,11 @@
 # answer as a string: abcd.
 
 # parentheses sets:
-# ((a @ b) @ c) @ d
-# (a @ (b @ c)) @ d
-# a @ (b @ (c @ d))
-# a @ ((b @ c) @ d)
-# (a @ b) @ (c @ d)
+# ((0 @0 1) @1 2) @2 3 | ((1 - 2) * 5) + 8 => 2.5  | @3(@2(@1(a,b),c),d)
+# (0 @0 (1 @1 2)) @2 3 | (1 - (2 * 5)) + 8 => 2.5  | @3(@1(a,@2(b,c)),d)
+# 0 @0 (1 @1 (2 @2 3)) | 1 - (2 * (5 + 8)) => -0.2 | @1(a,@2(b,@3(c,d)))
+# 0 @0 ((1 @1 2) @2 3) | 1 - ((2 * 5) + 8) => -3.5 | @1(a,@3(@2(b,c),d))
+# (0 @0 1) @1 (2 @2 3) | (1 - 2) * (5 + 8) => -0.2 | @2(@1(a,b),@3(c,d))
 
 def add(a, b)
  return nil if a == nil || b == nil
@@ -48,12 +48,13 @@ end
 
 def apply(operands, operators)
   solutions = []
-  solutions << send(operators[2], (send(operators[1], (send(operators[0], operands[0], operands[1])), operands[2])), operands[3])
+  solutions << send(operators[2], send(operators[1], send(operators[0], operands[0], operands[1]), operands[2]), operands[3])
   solutions << send(operators[2], (send(operators[0], operands[0], send(operators[1], operands[1], operands[2]))), operands[3])
   solutions << send(operators[0], operands[0], (send(operators[1], operands[1], (send(operators[2], operands[2], operands[3])))))
   solutions << send(operators[0], operands[0], send(operators[2], send(operators[1], operands[1], operands[2]), operands[3]))
   solutions << send(operators[1], send(operators[0], operands[0], operands[1]), (send(operators[2], operands[2], operands[3])))
-  p solutions if operators == [1, 2, 5, 8]
+
+  # puts "#{operands} : #{operators} => #{solutions}"
   solutions
 end
 
@@ -68,7 +69,7 @@ end
 
 t1 = Time.now
 
-digits = (0..9).to_a
+digits = (0..9).map(&:to_f).to_a
 digits_sets = digits.permutation(4).to_a
 
 operations = [:add, :subtract, :multiply, :divide]
@@ -78,9 +79,10 @@ max_solution = 0
 max_operands = []
 
 digits_sets.each do |operands|
+# [[1,2,3,4],[1,2,3,6],[1,2,5,8]].each do |operands|
   next unless operands[0] < operands[1] && operands[1] < operands[2] && operands[2] < operands[3]
   solutions_sets = operations_sets.map { |ops| apply(operands, ops) }.flatten.compact
-  solutions = solutions_sets.uniq.sort.select { |s| s > 0 }
+  solutions = solutions_sets.uniq.sort.select { |s| s.floor == s && s > 0}.map(&:to_i).uniq
   
   s = consecutive_integers_max(solutions)
   
@@ -88,6 +90,13 @@ digits_sets.each do |operands|
     max_solution = s
     max_operands = operands
   end
+
+  # if (operands == [1,2,5,8] || operands == [0,1,2,4])
+  #   p operands
+  #   p solutions
+  #   p s
+  # end
+
 end
 
 puts "found #{max_operands.map(&:to_i).join('')} with max solution #{max_solution} in #{Time.now - t1}s"
