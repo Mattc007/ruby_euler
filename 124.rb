@@ -9,39 +9,46 @@
 
 # If rad(n) is sorted for 1 ≤ n ≤ 100000, find E(10000).
 
-class Rad
+class Radical
+  include Comparable
 
-  def initialize
-    @prime_factors = { 2 => [2] }
+  attr_accessor :rad, :number
+
+  def initialize(rad, number)
+    @rad = rad
+    @number = number
   end
 
-  def solve
-    t1 = Time.now
-    e = {}
-    n = 100_000
-    1.upto(n).each do |i|
-      e[i] = rad(i)
-    end
-
-    solution = e.sort_by(&:reverse)[9999][0]
-    puts "found #{solution} in #{Time.now - t1}s"
+  def <=>(other)
+    return 1 if rad > other.rad
+    return -1 if rad < other.rad
+    return number > other.number ? 1 : -1
   end
 
-  private
-    def get_prime_factors(n)
-      return [] if n == 1
-      return @prime_factors[n.to_s] if @prime_factors.has_key?(n.to_s)
-      factor = (2..n).find {|x| n % x == 0} 
-      [factor] + get_prime_factors(n / factor) 
-    end
-
-    def rad(n)
-      return 1 if n == 1
-      factors = get_prime_factors n
-      @prime_factors[n] = factors
-      factors.uniq.reduce(:*)
-    end
+  def inspect
+    puts "#{number} : #{rad}"
+  end
 end
 
-r = Rad.new
-r.solve
+t1 = Time.now
+limit = 100_000
+radicals = []
+
+0.upto(limit).each do |i|
+  radicals[i] = Radical.new(1, i)
+end
+
+2.upto(limit).each do |i|
+  if radicals[i].rad == 1
+    radicals[i].rad = i 
+
+    (i+i...limit).step(i) do |j|
+      radicals[j].rad *= i
+    end
+  end
+end
+
+radicals.sort!
+
+puts "found #{radicals[9999].number} in #{Time.now - t1}s"
+# found 21417 in 0.384311s
