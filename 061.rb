@@ -23,38 +23,44 @@
 #   heptagonal, and octagonal, is represented by a different number in 
 #   the set.
 
+t1 = Time.now
 
-def generate_numbers(type=0)
-  numbers = []
-  n = 0
-  number = 0
+def triangle(n); n * (n + 1) / 2; end
+def square(n); n * n; end
+def pentagonal(n); n * (3 * n - 1) / 2; end
+def hexagonal(n); n * (2 * n - 1); end
+def heptagonal(n); n * (5 * n - 3) / 2; end
+def octagonal(n); n * (3 * n - 2); end
+def is_cyclic(a, b); a.to_s[-2..-1] == b.to_s[0..1]; end
 
-  while number < 10_000
-    n += 1
-    case type
-    when 0
-      # triangle
-      number = n * (n + 1) / 2
-    when 1
-      # square
-      number = n * n
-    when 2
-      # pentagonal 
-      number = n * (3 * n - 1) / 2
-    when 3
-      # hexagonal
-      number = n * (2 * n - 1)
-    when 4
-      # heptagonal
-      number = n * (5 * n - 3) / 2
-    when 5
-      # octagonal
-      number = n * (3 * n - 2)
+polygonals = {
+  3 => ->(n) { (1..1000).map { |m| triangle m }   if n < 10_000 && n >= 1_000 },
+  4 => ->(n) { (1..1000).map { |m| square m }     if n < 10_000 && n >= 1_000 },
+  5 => ->(n) { (1..1000).map { |m| pentagonal m } if n < 10_000 && n >= 1_000 },
+  6 => ->(n) { (1..1000).map { |m| hexagonal m }  if n < 10_000 && n >= 1_000 },
+  7 => ->(n) { (1..1000).map { |m| heptagonal m } if n < 10_000 && n >= 1_000 },
+  8 => ->(n) { (1..1000).map { |m| octagonal m }  if n < 10_000 && n >= 1_000 }
+}
+
+polygonals.each do |k1, v1|
+  polygonals.each do |k2, v2|
+    next unless k2 != k1 && is_cyclic(v1, v2)
+    polygonals.each do |k3, v3| 
+      next unless [k1, k2].include? k3 && is_cyclic(v2, v3)
+      polygonals.each do |k4, v4| 
+        next unless [k1, k2, k3].include? k4 && is_cyclic(v3, v4)
+        polygonals.each do |k5, v5| 
+          next unless [k1, k2, k3, k4].include? k5 && is_cyclic(v4, v5)
+          polygonals.each do |k6, v6| 
+            next unless [k1, k2, k3, k4, k5].include? k5 && is_cyclic(v5, v6)
+            if is_cyclic(v6, v1)
+              puts "found #{[v1, v2, v3, v4, v5, v6].sum} in #{Time.now - t1}s"
+              return
+            end
+          end 
+        end 
+      end 
     end
-  
-    numbers << number if number > 999
   end
-
-  numbers
 end
 
